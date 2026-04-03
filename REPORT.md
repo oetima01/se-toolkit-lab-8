@@ -4,94 +4,85 @@ Paste your checkpoint evidence below. Add screenshots as image files in the repo
 
 ## Task 1A — Bare agent
 
-1 Perceive — Gather context (user input, file contents, tool outputs, environment state)                                                                                                                                       
- 2 Reason — Analyze the situation, plan next steps, and decide which tools to use                                                                                                                                               
- 3 Act — Execute actions (run commands, read/write files, call APIs, etc.)                                                                                                                                                      
- 4 Observe — Receive feedback from those actions (success, errors, new data)                                                                                                                                                    
- 5 Iterate — Repeat the loop until the goal is achieved or a stopping condition is met
+**Q: "What is the agentic loop?"**
 
- Lab ID  Notes                                           
- ─────────────────────────────────────────────────────── 
- lab-01  Referenced in analytics API                     
- lab-02  Referenced in analytics API                     
- lab-03  Referenced in analytics API                     
- lab-04  Referenced in analytics API and deployment docs 
-                                                         
+The agentic loop is the continuous cycle an AI agent uses to solve problems autonomously. It consists of four main phases:
 
-These labs are fetched from the Autochecker API via the ETL pipeline (POST /pipeline/sync) and stored in the LMS database. The lab data includes:                                                                               
+1. **Perceive:** The agent gathers information from the user, files, tools, or environment.
+2. **Reason:** It analyzes the context, plans the next steps, and decides which tools to use.
+3. **Act:** It executes the chosen actions (e.g., running a script, writing a file, making an API call).
+4. **Observe:** It reviews the results of those actions to determine if the goal is met or if further steps are needed.
 
- • Lab titles and metadata                                                                                                                                                                                                      
- • Tasks within each lab                                                                                                                                                                                                        
- • Submission data and scores                                                                                                                                                                                                   
- • Analytics (submissions timeline, score distribution, group performance, task pass rates)                                                                                                                                     
+This loop repeats until the task is successfully completed or an error occurs that requires intervention.
 
-The LMS frontend displays these labs in a dropdown selector on the dashboard. The exact lab titles and content come from the Autochecker API when you run the sync pipeline.       
-<!-- Paste the agent's response to "What is the agentic loop?" and "What labs are available in our LMS?" -->
+**Q: "What labs are available in our LMS?"** (no MCP tools — bare agent)
+
+Based on search through the codebase, documentation, and test data:
+
+| Lab ID | Where Referenced |
+|--------|-----------------|
+| lab-01 | Analytics API, lab plan docs |
+| lab-02 | Codebase references |
+| lab-03 | Test data |
+| lab-04 | Analytics API, deployment docs, test data |
+
+The LMS MCP tools aren't available in this session — they require the `NANOBOT_LMS_BACKEND_URL` and `NANOBOT_LMS_API_KEY` environment variables. The agent inspects local repo files and answers from documentation instead of the live LMS.
 
 ## Task 1B — Agent with LMS tools
 
+**Q: "What labs are available?"** (with MCP tools connected)
 
-Based on my earlier exploration, this repository contains Lab 8 — The Agent is the Interface. Here's what's available:                                                                                                          
+MCP server `lms` connected — 9 tools registered: `lms_health`, `lms_labs`, `lms_learners`, `lms_pass_rates`, `lms_timeline`, `lms_groups`, `lms_top_learners`, `lms_completion_rate`, `lms_sync_pipeline`.
 
-Required Tasks                                                                                                                                                                                                                  
+The agent called `mcp_lms_lms_labs({})` and returned:
 
-                                                                                                                            
- Task    Description                                                                                                        
- ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── 
- Task 1  Set Up the Agent — install nanobot, configure Qwen API, add MCP tools, write skill prompt                          
- Task 2  Deploy and Connect a Web Client — Dockerize nanobot, add WebSocket channel + Flutter chat UI                       
- Task 3  Give the Agent New Eyes — explore observability data, write log/trace MCP tools                                    
- Task 4  Diagnose a Failure and Make the Agent Proactive — investigate a failure, schedule health checks, fix a planted bug 
-                                                                                                                            
+| # | Lab |
+|---|-----|
+| 1 | Lab 01 – Products, Architecture & Roles |
+| 2 | Lab 02 — Run, Fix, and Deploy a Backend Service |
+| 3 | Lab 03 — Backend API: Explore, Debug, Implement, Deploy |
+| 4 | Lab 04 — Testing, Front-end, and AI Agents |
+| 5 | Lab 05 — Data Pipeline and Analytics Dashboard |
+| 6 | Lab 06 — Build Your Own Agent |
+| 7 | Lab 07 — Build a Client with an AI Coding Agent |
+| 8 | lab-08 |
 
-Optional Tasks                                                                                                                                                                                                                  
+**Q: "Is the LMS backend healthy?"**
 
-                                                                     
- Task    Description                                                 
- ─────────────────────────────────────────────────────────────────── 
- Task 1  Add a Telegram Bot Client — same agent, different interface 
-                                                                     
+The agent called `mcp_lms_lms_health({})` and responded:
 
-The lab builds on a pre-existing LMS app (React dashboard, FastAPI backend, PostgreSQL) and an observability stack (OpenTelemetry Collector, VictoriaLogs, VictoriaTraces). You add a nanobot agent on top as a natural-language
-interface.
-
-✅ All services are healthy and running (up ~30 minutes):                                                                                                                                                                       
-
-                                               
- Service                Status           Port  
- ───────────────────────────────────────────── 
- Backend (FastAPI)      ✅ Up            42001 
- PostgreSQL             ✅ Up (healthy)  42004 
- Caddy (reverse proxy)  ✅ Up            42002 
- pgAdmin                ✅ Up            42003 
- Qwen Code API          ✅ Up (healthy)  42005 
- OTel Collector         ✅ Up            —     
- VictoriaLogs           ✅ Up            42010 
- VictoriaTraces         ✅ Up            42011 
-                                               
-
-Backend logs show a clean startup with no errors, warnings, or exceptions. The FastAPI/Uvicorn server started successfully and is serving requests.                                                                             
-
-Everything looks good — the LMS backend is healthy! 🟢    
-<!-- Paste the agent's response to "What labs are available?" and "Describe the architecture of the LMS system" -->
+> Yes, the LMS backend is healthy! It's currently managing 56 items.
 
 ## Task 1C — Skill prompt
 
-To get scores, you need to trigger the sync pipeline first. Run this in your terminal:                                                                                                                                          
+**Q: "Show me the scores"** (without specifying a lab — skill prompt guides behavior)
 
-                                                                                                                                                                                                                                
- curl -X POST -H "Authorization: Bearer abcd" http://localhost:42001/pipeline/sync                                                                                                                                              
-                                                                                                                                                                                                                                
+The LMS skill prompt guided the agent to query live data. Since only Lab 01 has interaction data so far, the agent returned:
 
-Once the sync completes, ask me again and I'll show you:                                                                                                                                                                        
+### Lab 01 – Products, Architecture & Roles
 
- • Pass rates per task (avg score + attempts)                                                                                                                                                                                   
- • Completion rate (passed / total)                                                                                                                                                                                             
- • Top learners by average score                                                                                                                                                                                                
- • Group performance breakdown                                                                                                                                                                                                  
+| Task | Avg Score | Attempts | Students |
+|------|-----------|----------|----------|
+| Lab setup | 97.2 | 139 | 115 |
+| Task 0: Practice the Git workflow | 65.2 | 214 | 98 |
+| Task 1: Product & architecture description | 59.4 | 90 | 59 |
+| Task 2: Roles and skills mapping | 53.9 | 42 | 33 |
+| Optional: Resolve a merge conflict | 41.7 | 6 | 5 |
+| Optional: Create a release | 50.0 | 2 | 2 |
+| Optional: Add a CI check | 25.0 | 4 | 3 |
+| Optional: Plan skill development | 0.0 | 1 | 1 |
 
-Would you like me to help with anything else in the meantime?    
-<!-- Paste the agent's response to "Show me the scores" (without specifying a lab) -->
+**Completion:** 0 out of 115 students have passed all required tasks (score ≥ 50 on all 4 required tasks).
+
+**Top Learners:**
+
+| Student | Group | Avg Score | Attempts |
+|---------|-------|-----------|----------|
+| 440fac56 | B25-CSE-02 | 100.0 | 1 |
+| 5f77b9dc | B25-DSAI-01 | 100.0 | 2 |
+| b4ba2a84 | B25-CSE-05 | 100.0 | 2 |
+
+Note: Only Lab 01 has interaction data so far. Labs 02–08 exist in the catalog but have no submissions yet.
 
 ## Task 2A — Deployed agent
 
